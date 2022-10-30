@@ -2,3 +2,5 @@ torch
 torchvision
 GPUtil
 humanize
+torch_tb_profiler
+torchsummary
