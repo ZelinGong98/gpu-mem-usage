@@ -25,7 +25,11 @@ class Net(nn.Module):
     def forward(self, x):
         x = self.conv1(x)
         x = F.relu(x)
+
+        if self.epoch == 2: NCU.start()
         x = self.conv2(x)
+        if self.epoch == 2: NCU.stop()
+
         x = F.relu(x)
         x = F.max_pool2d(x, 2)
         x = self.dropout1(x)
@@ -137,17 +141,15 @@ def main():
 
     print(model)
     # print(next(model.parameters()).size())
-    summary(model, (1,28,28))
+    summary(model, (args.batch_size,28,28))
 
     scheduler = StepLR(optimizer, step_size=1, gamma=args.gamma)
     # profiler=torch.profiler.profile(schedule=torch.profiler.schedule(wait=1, warmup=1, active=3, repeat=2), 
-            on_trace_ready=torch.profiler.tensorboard_trace_handler('./log/mnist'), record_shapes=True, profile_memory=True, with_stack=True)
+    #        on_trace_ready=torch.profiler.tensorboard_trace_handler('./log/mnist'), record_shapes=True, profile_memory=True, with_stack=True)
     # profiler.start()
     for epoch in range(1, args.epochs + 1):
-        if epoch == 2: NCU.start()
         train(args, model, device, train_loader, optimizer, epoch)
-        if epoch == 2: NCU.stop()
-        test(model, device, test_loader)
+        # test(model, device, test_loader)
         scheduler.step()
         # profiler.step()
     # profiler.stop()
